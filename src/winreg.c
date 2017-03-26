@@ -3,7 +3,9 @@
 #endif
 
 #include <assert.h>
+#ifndef lua_assert
 #define lua_assert assert
+#endif
 
 #include <lua.h>
 #include <lualib.h>
