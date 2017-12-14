@@ -1,5 +1,10 @@
 #ifndef __LUAMACRO_H__
 #define __LUAMACRO_H__
+
+#ifdef LUA_COMPAT53
+#include LUA_COMPAT53
+#endif
+
 /* Compatibility between Lua 5.1+ and Lua 5.0 */
 #ifndef LUA_VERSION_NUM
 #	define LUA_VERSION_NUM 0
@@ -23,8 +28,6 @@
 #ifndef lua_unboxpointer
 #	define lua_unboxpointer(L,i)	(*(void **)(lua_touserdata(L, i)))
 #endif
-/* convert a stack index to positive */
-#define lua_absindex(L, i)		(((i)>0)?(i):((i)<=LUA_REGISTRYINDEX?(i):(lua_gettop(L)+(i)+1)))
 
 
 

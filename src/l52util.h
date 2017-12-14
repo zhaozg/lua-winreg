@@ -4,31 +4,8 @@
 #include "lua.h"
 #include "lauxlib.h"
 
-#if LUA_VERSION_NUM >= 502 // lua 5.2
-
-// lua_rawgetp
-// lua_rawsetp
-// luaL_setfuncs
-// lua_absindex
-
-
-#define lua_objlen      lua_rawlen
-
-int   luaL_typerror (lua_State *L, int narg, const char *tname);
-
-void luaL_register (lua_State *L, const char *libname, const luaL_Reg *l);
-
-#else                      // lua 5.1
-
-// functions form lua 5.2
-
-# define lua_absindex(L, i) (((i)>0)?(i):((i)<=LUA_REGISTRYINDEX?(i):(lua_gettop(L)+(i)+1)))
-# define lua_rawlen  lua_objlen
-
-void  lua_rawgetp   (lua_State *L, int index, const void *p);
-void  lua_rawsetp   (lua_State *L, int index, const void *p);
-void  luaL_setfuncs  (lua_State *L, const luaL_Reg *l, int nup);
-
+#ifdef LUA_COMPAT53
+#include LUA_COMPAT53
 #endif
 
 int   lutil_newmetatablep (lua_State *L, const void *p);

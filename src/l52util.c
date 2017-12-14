@@ -3,48 +3,6 @@
 #include <memory.h>
 #include <assert.h>
 
-#if LUA_VERSION_NUM >= 502 
-
-int luaL_typerror (lua_State *L, int narg, const char *tname) {
-  const char *msg = lua_pushfstring(L, "%s expected, got %s", tname,
-      luaL_typename(L, narg));
-  return luaL_argerror(L, narg, msg);
-}
-
-void luaL_register (lua_State *L, const char *libname, const luaL_Reg *l){
-  if(libname) lua_newtable(L);
-  luaL_setfuncs(L, l, 0);
-}
-
-#else 
-
-void luaL_setfuncs (lua_State *L, const luaL_Reg *l, int nup){
-  luaL_checkstack(L, nup, "too many upvalues");
-  for (; l->name != NULL; l++) {  /* fill the table with given functions */
-    int i;
-    for (i = 0; i < nup; i++)  /* copy upvalues to the top */
-      lua_pushvalue(L, -nup);
-    lua_pushcclosure(L, l->func, nup);  /* closure with those upvalues */
-    lua_setfield(L, -(nup + 2), l->name);
-  }
-  lua_pop(L, nup);  /* remove upvalues */
-}
-
-void lua_rawgetp(lua_State *L, int index, const void *p){
-  index = lua_absindex(L, index);
-  lua_pushlightuserdata(L, (void *)p);
-  lua_rawget(L, index);
-}
-
-void lua_rawsetp (lua_State *L, int index, const void *p){
-  index = lua_absindex(L, index);
-  lua_pushlightuserdata(L, (void *)p);
-  lua_insert(L, -2);
-  lua_rawset(L, index);
-}
-
-#endif
-
 int lutil_newmetatablep (lua_State *L, const void *p) {
   lua_rawgetp(L, LUA_REGISTRYINDEX, p);
   if (!lua_isnil(L, -1))  /* name already in use? */
