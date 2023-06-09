@@ -40,13 +40,6 @@
 #endif
 
 
-BOOL APIENTRY DllMain(HANDLE hModule, DWORD  ul_reason_for_call,  LPVOID lpReserved){
-	UNUSED(hModule);
-	UNUSED(lpReserved);
-	UNUSED(ul_reason_for_call);
-    return TRUE;
-}
-
 __declspec(dllexport) int luaopen_winreg(lua_State *L){
 	luaL_register(L, "winreg", lreg_reglib);
 	return 1;
@@ -68,13 +61,13 @@ int reg_aux_newkey(lua_State *L,  HKEY HKey,  LPCTSTR szKey, LPCTSTR szClass, RE
 	DWORD dwDis = (bCreate==FALSE) ? REG_OPENED_EXISTING_KEY : 0;
 	HKEY hKey   = NULL;
 	LONG ret    = (bCreate
-			? RegCreateKeyEx(HKey, szKey, 0, (PTSTR)szClass, 0, samDesired, NULL, &hKey, &dwDis) 
+			? RegCreateKeyEx(HKey, szKey, 0, (PTSTR)szClass, 0, samDesired, NULL, &hKey, &dwDis)
 			: RegOpenKeyEx(HKey, szKey, 0, samDesired, &hKey)
 			);
 	//WIN_TRACET(_T("%hs: hkey<%x>, sub<%s>, cls<%s>, acc<%d>;"), bCreate?"createkey":"openkey", HKey, szKey, szClass, samDesired);
-	
+
 	if(ret == ERROR_SUCCESS){
-		reg_aux_newhkey(L, &hKey); 
+		reg_aux_newhkey(L, &hKey);
 		return dwDis;
 	}else{
 		// if we're opening a key, dont shout the error
@@ -151,7 +144,7 @@ HKEY reg_aux_strtohkey(lua_State *L, const char * psz){
 	INT64 x;
 	if(atoINT64(psz, &x)){
 		WIN_TRACEA("DIGIT ROOTKEY %s", psz);
-		return (HKEY)(size_t)x;	        
+		return (HKEY)(size_t)x;
 	}else{
 		for(pph = ph; pph->name && stricmp(psz, pph->name); pph++);
 		if(!pph->data)luaL_error(L, "invalid prefix key '%s'", psz);
@@ -240,7 +233,7 @@ static const KVDATA reg_type_table[] = {
 	{0,0}
 };
 void reg_aux_pushdatatype(lua_State *L, DWORD dwType){
-/*	const KVDATA * pkvd; 
+/*	const KVDATA * pkvd;
 	for(pkvd = &reg_type_table[0]; pkvd->name && pkvd->data != dwType; pkvd++);
 	if(pkvd->name){
 		lua_pushstring(L, pkvd->name);
@@ -374,7 +367,7 @@ void reg_aux_pusheregluadata(lua_State *L, PVOID pdata, size_t cdata, DWORD dwTy
 		case REG_DWORD: case REG_DWORD_BIG_ENDIAN:
 			lua_pushnumber(L, *((PDWORD32)pdata));
 		break; case REG_QWORD:
-			lua_pushUINT64(L, *((PDWORD64)pdata)); 
+			lua_pushUINT64(L, *((PDWORD64)pdata));
 		break; case REG_MULTI_SZ:
 		{
 			int c = 1;
@@ -392,8 +385,8 @@ void reg_aux_pusheregluadata(lua_State *L, PVOID pdata, size_t cdata, DWORD dwTy
 			lua_pushlstring(L, (const char *)pdata, cdata);
 	}
 }
-typedef struct _REG_ENUM_TAG {    // rc  
-	HKEY hKey; 
+typedef struct _REG_ENUM_TAG {    // rc
+	HKEY hKey;
     DWORD dwIndex;
 	PTSTR buffer;
 	DWORD bchlen;
@@ -463,13 +456,13 @@ int reg_createkey(lua_State *L){//regobj.createkey
 }
 //docok
 int reg_deletekey(lua_State *L){//regobj.deletekey
-	LONG ret = win_reg_deltree(reg_aux_gethkey(L,1), lua_checktstring(L, 2)); 
+	LONG ret = win_reg_deltree(reg_aux_gethkey(L,1), lua_checktstring(L, 2));
 	LUA_CHECK_DLL_ERROR(L, ret);
 	LUA_CHECK_RETURN_OBJECT(L, ret == ERROR_SUCCESS);
 }
 //docok
 int reg_deletevalue(lua_State *L){//regobj.deletevalue
-	LONG ret = RegDeleteValue(reg_aux_gethkey(L,1), lua_checktstring(L, 2)); 
+	LONG ret = RegDeleteValue(reg_aux_gethkey(L,1), lua_checktstring(L, 2));
 	LUA_CHECK_DLL_ERROR(L, ret);
 	LUA_CHECK_RETURN_OBJECT(L, ret == ERROR_SUCCESS);
 }
@@ -516,7 +509,7 @@ int reg_enumvalue(lua_State *L){//regobj.enumvalue
 int reg_flushkey(lua_State *L){//"regobj.flushkey"
 	LONG ret = RegFlushKey(reg_aux_gethkey(L, 1));
 	LUA_CHECK_DLL_ERROR(L, ret);
-	LUA_CHECK_RETURN_OBJECT(L, ret == ERROR_SUCCESS); 
+	LUA_CHECK_RETURN_OBJECT(L, ret == ERROR_SUCCESS);
 }
 //docok
 int reg_getinfo(lua_State *L){//regobj.getinfo
@@ -620,7 +613,7 @@ int reg_savekey(lua_State *L){//regobj.save
 }
 //docok
 int reg_setvalue(lua_State *L){//regobj.setvalue
-	LUA_CHECK_RETURN_OBJECT(L, 
+	LUA_CHECK_RETURN_OBJECT(L,
 		reg_aux_setvalue(L, reg_aux_gethkey(L, 1), lua_opttstring(L, 2, NULL), reg_aux_getdatatype(L, 4), 3)
 		);
 }
